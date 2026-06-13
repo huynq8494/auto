@@ -8,6 +8,7 @@ source "$(dirname "$0")/init.sh"
 # Add new functions by adding a new line to this array.
 FUNCS=(
   "build_opencv_aarch64:Build OpenCV for aarch64"
+  "build_test:Build test on Orange Pi 5 Pro"
 )
 
 # -------------------------
@@ -34,6 +35,30 @@ build_opencv_aarch64() {
     # -D CMAKE_ASM_COMPILER=${HOME}/compilers/aarch64/arm-gnu-toolchain-15.2.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-gcc \
   ninja -C ${lvar_dir_build}
   cmake --install ${lvar_dir_build} --prefix ${lvar_dir_build}/install
+}
+
+build_test() {
+  echo "Building test on Orange Pi 5 Pro..."
+  # local lvar_dir_test=/home/huynq/face-recognition-gst/test08/
+  # local lvar_dir_test=/home/huynq/face-recognition-gst/test09/
+  # local lvar_dir_test=/home/huynq/face-recognition-gst/test10/
+  # local lvar_dir_test=/home/huynq/face-recognition-gst/test11/
+  # local lvar_dir_test=/home/huynq/face-recognition-gst/test12/
+  local lvar_dir_test=/home/huynq/face-recognition-gst/test13/
+  local lvar_name_test=$(basename ${lvar_dir_test})
+  # rm -rf ${GVAR_DIR_OUTPUT}/test_build
+  # cmake -S ${lvar_dir_test} -B ${GVAR_DIR_OUTPUT}/test_build
+  cmake -DTARGET_SOC=rk3588 \
+    -DCMAKE_SYSTEM_NAME=Linux \
+    -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DENABLE_ASAN=OFF \
+    -DDISABLE_RGA=OFF \
+    -DDISABLE_LIBJPEG=OFF \
+    -S ${lvar_dir_test} -B ${GVAR_DIR_OUTPUT}/build/${lvar_name_test} 
+  cmake --build ${GVAR_DIR_OUTPUT}/build/${lvar_name_test}
+  rm -f ${GVAR_DIR_OUTPUT}/test
+  ln -s ${GVAR_DIR_OUTPUT}/build/${lvar_name_test}/${lvar_name_test} ${GVAR_DIR_OUTPUT}/test
 }
 
 # -------------------------
